@@ -89,14 +89,7 @@ export default function ProductsAdmin() {
               {filteredProducts.map(product => (
                 <tr key={product.id} className="hover:bg-secondary/20 transition-colors">
                   <td className="px-6 py-4">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded border bg-white overflow-hidden flex-shrink-0">
-                        <img src={product.imageUrl} alt={product.name} className="w-full h-full object-cover" />
-                      </div>
-                      <div>
-                        <p className="font-semibold text-foreground line-clamp-1">{product.name}</p>
-                      </div>
-                    </div>
+                    <p className="font-semibold text-foreground line-clamp-1">{product.name}</p>
                   </td>
                   <td className="px-6 py-4 text-muted">{product.sku}</td>
                   <td className="px-6 py-4 font-medium">₹{(product.salePrice || product.price).toLocaleString('en-IN')}</td>

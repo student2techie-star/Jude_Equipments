@@ -38,44 +38,31 @@ export const useProductStore = create<ProductState>((set) => ({
         imageUrl: cat.image_url || 'https://via.placeholder.com/800x600?text=No+Image'
       }));
 
-      // Fetch products and their primary images
+      // Fetch products (no image data from DB)
       const { data: productData, error: productError } = await supabase
         .from('products')
-        .select(`
-          *,
-          product_images (
-            image_url,
-            is_primary
-          )
-        `);
+        .select('*');
 
       if (productError) throw productError;
 
-      // Map to frontend Product type
-      const mappedProducts: Product[] = (productData || []).map(prod => {
-        // Find the primary image, or fallback to the first image, or a placeholder
-        const images = prod.product_images || [];
-        const primaryImage = images.find((img: any) => img.is_primary) || images[0];
-        const imageUrl = primaryImage ? primaryImage.image_url : 'https://via.placeholder.com/800x800?text=No+Image';
-
-        return {
-          id: prod.product_id,
-          categoryId: prod.category_id,
-          name: prod.product_name,
-          slug: prod.slug,
-          sku: prod.product_code || `SKU-${prod.product_id.substring(0, 8)}`,
-          shortDescription: prod.short_description || prod.description || '',
-          price: Number(prod.price) || 0,
-          salePrice: prod.offer_price ? Number(prod.offer_price) : undefined,
-          stockQuantity: prod.stock_quantity || 0,
-          imageUrl: imageUrl,
-          isFeatured: prod.featured || false,
-          specs: {
-            "Capacity": prod.capacity,
-            "Readability": prod.readability
-          }
-        };
-      });
+      // Map to frontend Product type (images handled on frontend only)
+      const mappedProducts: Product[] = (productData || []).map(prod => ({
+        id: prod.product_id,
+        categoryId: prod.category_id,
+        name: prod.product_name,
+        slug: prod.slug,
+        sku: prod.product_code || `SKU-${prod.product_id.substring(0, 8)}`,
+        shortDescription: prod.short_description || prod.description || '',
+        price: Number(prod.price) || 0,
+        salePrice: prod.offer_price ? Number(prod.offer_price) : undefined,
+        stockQuantity: prod.stock_quantity || 0,
+        imageUrl: 'https://via.placeholder.com/800x800?text=No+Image',
+        isFeatured: prod.featured || false,
+        specs: {
+          "Capacity": prod.capacity,
+          "Readability": prod.readability
+        }
+      }));
 
       set({
         categories: mappedCategories,
@@ -89,38 +76,23 @@ export const useProductStore = create<ProductState>((set) => ({
   },
   addProduct: async (product) => {
     try {
-      // 1. Insert product
-      const { data: newProduct, error: prodError } = await supabase
+      const { error: prodError } = await supabase
         .from('products')
         .insert({
           category_id: product.categoryId,
           product_name: product.name,
           slug: product.slug,
           product_code: product.sku,
-          description: product.shortDescription, // Using shortDescription for description
+          description: product.shortDescription,
           price: product.price,
           offer_price: product.salePrice,
           stock_quantity: product.stockQuantity,
           featured: product.isFeatured,
           capacity: product.specs?.Capacity,
           readability: product.specs?.Readability
-        })
-        .select()
-        .single();
+        });
 
       if (prodError) throw prodError;
-
-      // 2. Insert image
-      if (product.imageUrl) {
-        const { error: imgError } = await supabase
-          .from('product_images')
-          .insert({
-            product_id: newProduct.product_id,
-            image_url: product.imageUrl,
-            is_primary: true
-          });
-        if (imgError) throw imgError;
-      }
 
       // Refresh data
       await useProductStore.getState().fetchData();
@@ -153,26 +125,7 @@ export const useProductStore = create<ProductState>((set) => ({
         if (prodError) throw prodError;
       }
 
-      // 2. Update image
-      if (product.imageUrl !== undefined) {
-        // Delete old primary images
-        await supabase
-          .from('product_images')
-          .delete()
-          .eq('product_id', id);
 
-        // Insert new primary image
-        if (product.imageUrl) {
-          const { error: imgError } = await supabase
-            .from('product_images')
-            .insert({
-              product_id: id,
-              image_url: product.imageUrl,
-              is_primary: true
-            });
-          if (imgError) throw imgError;
-        }
-      }
 
       // Refresh data
       await useProductStore.getState().fetchData();

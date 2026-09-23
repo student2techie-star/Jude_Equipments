@@ -230,18 +230,6 @@ export default function ProductFormModal({
 
             {/* Additional Info */}
             <div className="space-y-4 pt-4 border-t">
-              <div>
-                <label className="block text-sm font-medium mb-1">Image URL *</label>
-                <input 
-                  required 
-                  type="url" 
-                  name="imageUrl" 
-                  value={formData.imageUrl} 
-                  onChange={handleChange}
-                  placeholder="https://example.com/image.jpg"
-                  className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-primary focus:outline-none bg-background" 
-                />
-              </div>
 
               <div>
                 <label className="block text-sm font-medium mb-1">Short Description</label>
