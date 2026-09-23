@@ -17,13 +17,18 @@ import { useProductStore } from './store/useProductStore'
 import Dashboard from './pages/admin/Dashboard'
 import ProductsAdmin from './pages/admin/ProductsAdmin'
 import OrdersAdmin from './pages/admin/OrdersAdmin'
+import Login from './pages/admin/Login'
+import ProtectedRoute from './components/admin/ProtectedRoute'
+import { useAuthStore } from './store/useAuthStore'
 
 function App() {
   const fetchData = useProductStore(state => state.fetchData);
+  const initializeAuth = useAuthStore(state => state.initializeAuth);
 
   useEffect(() => {
+    initializeAuth();
     fetchData();
-  }, [fetchData]);
+  }, [initializeAuth, fetchData]);
 
   return (
     <HelmetProvider>
@@ -41,11 +46,16 @@ function App() {
             <Route path="account/*" element={<Account />} />
           </Route>
 
+          {/* Admin Auth Route */}
+          <Route path="/admin/login" element={<Login />} />
+
           {/* Admin Routes */}
-          <Route path="/admin" element={<AdminLayout />}>
-            <Route index element={<Dashboard />} />
-            <Route path="products" element={<ProductsAdmin />} />
-            <Route path="orders" element={<OrdersAdmin />} />
+          <Route path="/admin" element={<ProtectedRoute />}>
+            <Route element={<AdminLayout />}>
+              <Route index element={<Dashboard />} />
+              <Route path="products" element={<ProductsAdmin />} />
+              <Route path="orders" element={<OrdersAdmin />} />
+            </Route>
           </Route>
         </Routes>
       </HashRouter>

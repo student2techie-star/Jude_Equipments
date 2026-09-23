@@ -1,9 +1,17 @@
-import { Outlet, Link, useLocation } from 'react-router-dom'
+import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom'
 import { LayoutDashboard, Package, ShoppingCart, Users, BarChart3, Settings, LogOut } from 'lucide-react'
+import { useAuthStore } from '../../store/useAuthStore'
 
 export default function AdminLayout() {
   const location = useLocation();
   const path = location.pathname;
+  const navigate = useNavigate();
+  const signOut = useAuthStore(state => state.signOut);
+
+  const handleLogout = async () => {
+    await signOut();
+    navigate('/admin/login');
+  };
 
   const isActive = (route: string) => path.startsWith(route) ? 'bg-primary text-primary-foreground' : 'text-muted hover:bg-secondary hover:text-foreground';
 
@@ -37,7 +45,7 @@ export default function AdminLayout() {
         </nav>
         
         <div className="p-4 border-t">
-          <button className="w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-colors font-medium text-destructive hover:bg-destructive/10">
+          <button onClick={handleLogout} className="w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-colors font-medium text-destructive hover:bg-destructive/10">
             <LogOut className="w-5 h-5" /> Logout
           </button>
         </div>
