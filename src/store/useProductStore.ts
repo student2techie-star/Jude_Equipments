@@ -8,6 +8,9 @@ interface ProductState {
   isLoading: boolean;
   error: string | null;
   fetchData: () => Promise<void>;
+  addProduct: (product: Omit<Product, 'id'>) => Promise<void>;
+  updateProduct: (id: string, product: Partial<Product>) => Promise<void>;
+  deleteProduct: (id: string) => Promise<void>;
 }
 
 export const useProductStore = create<ProductState>((set) => ({
@@ -82,6 +85,116 @@ export const useProductStore = create<ProductState>((set) => ({
     } catch (err: any) {
       console.error('Error fetching from Supabase:', err);
       set({ error: err.message, isLoading: false });
+    }
+  },
+  addProduct: async (product) => {
+    try {
+      // 1. Insert product
+      const { data: newProduct, error: prodError } = await supabase
+        .from('products')
+        .insert({
+          category_id: product.categoryId,
+          product_name: product.name,
+          slug: product.slug,
+          product_code: product.sku,
+          description: product.shortDescription, // Using shortDescription for description
+          price: product.price,
+          offer_price: product.salePrice,
+          stock_quantity: product.stockQuantity,
+          featured: product.isFeatured,
+          capacity: product.specs?.Capacity,
+          readability: product.specs?.Readability
+        })
+        .select()
+        .single();
+
+      if (prodError) throw prodError;
+
+      // 2. Insert image
+      if (product.imageUrl) {
+        const { error: imgError } = await supabase
+          .from('product_images')
+          .insert({
+            product_id: newProduct.product_id,
+            image_url: product.imageUrl,
+            is_primary: true
+          });
+        if (imgError) throw imgError;
+      }
+
+      // Refresh data
+      await useProductStore.getState().fetchData();
+    } catch (err: any) {
+      console.error('Error adding product:', err);
+      throw err;
+    }
+  },
+  updateProduct: async (id, product) => {
+    try {
+      // 1. Update product
+      const updateData: any = {};
+      if (product.categoryId !== undefined) updateData.category_id = product.categoryId;
+      if (product.name !== undefined) updateData.product_name = product.name;
+      if (product.slug !== undefined) updateData.slug = product.slug;
+      if (product.sku !== undefined) updateData.product_code = product.sku;
+      if (product.shortDescription !== undefined) updateData.description = product.shortDescription;
+      if (product.price !== undefined) updateData.price = product.price;
+      if (product.salePrice !== undefined) updateData.offer_price = product.salePrice;
+      if (product.stockQuantity !== undefined) updateData.stock_quantity = product.stockQuantity;
+      if (product.isFeatured !== undefined) updateData.featured = product.isFeatured;
+      if (product.specs?.Capacity !== undefined) updateData.capacity = product.specs.Capacity;
+      if (product.specs?.Readability !== undefined) updateData.readability = product.specs.Readability;
+
+      if (Object.keys(updateData).length > 0) {
+        const { error: prodError } = await supabase
+          .from('products')
+          .update(updateData)
+          .eq('product_id', id);
+        if (prodError) throw prodError;
+      }
+
+      // 2. Update image
+      if (product.imageUrl !== undefined) {
+        // Delete old primary images
+        await supabase
+          .from('product_images')
+          .delete()
+          .eq('product_id', id);
+
+        // Insert new primary image
+        if (product.imageUrl) {
+          const { error: imgError } = await supabase
+            .from('product_images')
+            .insert({
+              product_id: id,
+              image_url: product.imageUrl,
+              is_primary: true
+            });
+          if (imgError) throw imgError;
+        }
+      }
+
+      // Refresh data
+      await useProductStore.getState().fetchData();
+    } catch (err: any) {
+      console.error('Error updating product:', err);
+      throw err;
+    }
+  },
+  deleteProduct: async (id) => {
+    try {
+      const { error } = await supabase
+        .from('products')
+        .delete()
+        .eq('product_id', id);
+
+      if (error) throw error;
+
+      // Refresh data
+      await useProductStore.getState().fetchData();
+    } catch (err: any) {
+      console.error('Error deleting product:', err);
+      throw err;
     }
   }
 }));
