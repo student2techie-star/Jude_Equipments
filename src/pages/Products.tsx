@@ -1,19 +1,20 @@
 import { Link, useSearchParams } from 'react-router-dom'
 import { ShoppingBag, Search, SlidersHorizontal, ChevronRight, Filter } from 'lucide-react'
 import { Helmet } from 'react-helmet-async'
-import { CATEGORIES, PRODUCTS } from '../data/mockData'
 import { useCartStore } from '../store/useCartStore'
+import { useProductStore } from '../store/useProductStore'
 
 export default function Products() {
   const [searchParams, setSearchParams] = useSearchParams();
   const categoryFilter = searchParams.get('category');
   const addItem = useCartStore(state => state.addItem);
+  const { categories, products } = useProductStore();
   
-  const selectedCategory = CATEGORIES.find(c => c.slug === categoryFilter);
+  const selectedCategory = categories.find(c => c.slug === categoryFilter);
   
   const filteredProducts = categoryFilter 
-    ? PRODUCTS.filter(p => p.categoryId === selectedCategory?.id)
-    : PRODUCTS;
+    ? products.filter(p => p.categoryId === selectedCategory?.id)
+    : products;
 
   return (
     <div className="bg-secondary/20 min-h-screen pb-16">
@@ -71,11 +72,11 @@ export default function Products() {
                     className={`w-full text-left px-3 py-2.5 rounded-md text-sm font-medium transition-colors flex items-center justify-between ${!categoryFilter ? 'bg-primary/10 text-primary' : 'hover:bg-secondary text-foreground'}`}
                   >
                     <span>All Products</span>
-                    <span className="text-xs bg-secondary px-2 py-0.5 rounded-full text-muted">{PRODUCTS.length}</span>
+                    <span className="text-xs bg-secondary px-2 py-0.5 rounded-full text-muted">{products.length}</span>
                   </button>
                 </li>
-                {CATEGORIES.map(category => {
-                  const count = PRODUCTS.filter(p => p.categoryId === category.id).length;
+                {categories.map(category => {
+                  const count = products.filter(p => p.categoryId === category.id).length;
                   return (
                     <li key={category.id}>
                       <button

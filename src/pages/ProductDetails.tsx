@@ -2,14 +2,19 @@ import { useParams, Link } from 'react-router-dom'
 import { ChevronRight, Minus, Plus, ShoppingCart, Shield, Truck, Info, HelpCircle } from 'lucide-react'
 import { useState } from 'react'
 import { useCartStore } from '../store/useCartStore'
-import { PRODUCTS, CATEGORIES } from '../data/mockData'
+import { useProductStore } from '../store/useProductStore'
 
 export default function ProductDetails() {
   const { slug } = useParams<{ slug: string }>();
-  const product = PRODUCTS.find(p => p.slug === slug);
-  const category = CATEGORIES.find(c => c.id === product?.categoryId);
+  const { products, categories, isLoading } = useProductStore();
+  const product = products.find(p => p.slug === slug);
+  const category = categories.find(c => c.id === product?.categoryId);
   const addItem = useCartStore(state => state.addItem);
   const [quantity, setQuantity] = useState(1);
+
+  if (isLoading) {
+    return <div className="py-24 text-center">Loading product...</div>;
+  }
 
   if (!product) {
     return (
@@ -78,7 +83,7 @@ export default function ProductDetails() {
               </h1>
               
               <div className="mt-4 prose prose-sm text-muted">
-                <p className="leading-relaxed text-base">{product.description}</p>
+                <p className="leading-relaxed text-base">{product.shortDescription}</p>
               </div>
             </div>
 
@@ -91,7 +96,7 @@ export default function ProductDetails() {
                 <div className="bg-white rounded-lg overflow-hidden border">
                   <table className="w-full text-sm">
                     <tbody className="divide-y divide-border">
-                      {Object.entries(product.specs).map(([key, value], index) => (
+                      {Object.entries(product.specs).map(([key, value]) => (
                         <tr key={key} className="hover:bg-secondary/30 transition-colors">
                           <td className="py-3 px-4 font-medium text-foreground bg-secondary/20 w-1/3">{key}</td>
                           <td className="py-3 px-4 text-muted">{value}</td>

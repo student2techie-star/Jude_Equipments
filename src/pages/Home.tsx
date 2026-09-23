@@ -2,9 +2,15 @@ import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { ArrowRight, ShoppingBag } from 'lucide-react'
 import { Helmet } from 'react-helmet-async'
-import { CATEGORIES, PRODUCTS } from '../data/mockData'
+import { useProductStore } from '../store/useProductStore'
 
 export default function Home() {
+  const { categories, products, isLoading } = useProductStore();
+
+  if (isLoading) {
+    return <div className="min-h-screen flex items-center justify-center">Loading catalogue...</div>;
+  }
+
   return (
     <div className="space-y-24 py-8">
       <Helmet>
@@ -87,7 +93,7 @@ export default function Home() {
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {CATEGORIES.map((category) => (
+          {categories.map((category) => (
             <Link to={`/products?category=${category.slug}`} key={category.id} className="group block">
               <div className="relative rounded-2xl overflow-hidden aspect-[4/3] mb-4 bg-secondary">
                 <img 
@@ -114,7 +120,7 @@ export default function Home() {
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {PRODUCTS.filter(p => p.isFeatured).map(product => (
+          {products.filter(p => p.isFeatured).map(product => (
             <div key={product.id} className="group bg-card rounded-2xl border hover:shadow-xl transition-all overflow-hidden flex flex-col">
               <Link to={`/products/${product.slug}`} className="relative aspect-square overflow-hidden bg-secondary block">
                 <img 

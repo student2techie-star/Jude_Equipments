@@ -8,7 +8,7 @@ export default function Checkout() {
   const { subtotal } = getTotals();
   const navigate = useNavigate();
 
-  const [paymentMethod, setPaymentMethod] = useState<'cod' | 'stripe'>('cod');
+  const [paymentMethod, setPaymentMethod] = useState<'cod' | 'razorpay'>('cod');
   const [isProcessing, setIsProcessing] = useState(false);
 
   // Simple calculation for mock data
@@ -198,9 +198,6 @@ export default function Checkout() {
             <div className="space-y-4 mb-6">
               {items.map(item => (
                 <div key={item.id} className="flex items-start gap-3 border-b border-black/5 pb-4">
-                  <div className="w-12 h-12 rounded bg-white overflow-hidden flex-shrink-0 border">
-                    <img src={item.imageUrl} alt={item.name} className="w-full h-full object-contain mix-blend-multiply" />
-                  </div>
                   <div className="flex-grow text-sm">
                     <p className="font-medium line-clamp-1">{item.name}</p>
                     <p className="text-muted">Qty: {item.quantity}</p>

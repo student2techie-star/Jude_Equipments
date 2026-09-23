@@ -1,5 +1,5 @@
 import { Outlet, Link } from 'react-router-dom'
-import { ShoppingCart, User, Search, Menu } from 'lucide-react'
+import { ShoppingCart, User, Menu } from 'lucide-react'
 import { useCartStore } from '../../store/useCartStore'
 
 export default function MainLayout() {

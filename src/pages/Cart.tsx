@@ -48,9 +48,6 @@ export default function Cart() {
                 return (
                   <div key={item.id} className="grid grid-cols-1 md:grid-cols-12 gap-6 items-center pb-6 border-b last:border-b-0 last:pb-0">
                     <div className="col-span-1 md:col-span-6 flex items-start sm:items-center gap-4">
-                      <div className="w-24 h-24 sm:w-20 sm:h-20 bg-secondary/50 rounded-xl overflow-hidden flex-shrink-0 border p-2">
-                        <img src={item.imageUrl} alt={item.name} className="w-full h-full object-contain mix-blend-multiply" />
-                      </div>
                       <div className="flex-grow">
                         <p className="text-xs text-muted mb-1 uppercase font-mono">{item.sku}</p>
                         <Link to={`/products/${item.slug}`} className="font-semibold text-base line-clamp-2 hover:text-accent transition-colors leading-snug">

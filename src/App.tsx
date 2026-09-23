@@ -11,12 +11,20 @@ import Checkout from './pages/Checkout'
 import OrderSuccess from './pages/OrderSuccess'
 import Account from './pages/Account'
 import About from './pages/About'
+import { useEffect } from 'react'
+import { useProductStore } from './store/useProductStore'
 
 import Dashboard from './pages/admin/Dashboard'
 import ProductsAdmin from './pages/admin/ProductsAdmin'
 import OrdersAdmin from './pages/admin/OrdersAdmin'
 
 function App() {
+  const fetchData = useProductStore(state => state.fetchData);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
+
   return (
     <HelmetProvider>
       <HashRouter>

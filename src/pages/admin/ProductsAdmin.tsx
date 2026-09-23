@@ -1,7 +1,13 @@
 import { Plus, Search, Edit, Trash2 } from 'lucide-react'
-import { PRODUCTS } from '../../data/mockData'
+import { useProductStore } from '../../store/useProductStore'
 
 export default function ProductsAdmin() {
+  const { products, isLoading } = useProductStore();
+
+  if (isLoading) {
+    return <div className="p-8">Loading products...</div>;
+  }
+
   return (
     <div className="space-y-8">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -36,7 +42,7 @@ export default function ProductsAdmin() {
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
-              {PRODUCTS.map(product => (
+              {products.map(product => (
                 <tr key={product.id} className="hover:bg-secondary/20 transition-colors">
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-3">
